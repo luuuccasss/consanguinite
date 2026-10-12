@@ -58,7 +58,7 @@ public class Consanguinite implements ModInitializer {
 
         if (world.random.nextDouble() < tare.sterileChance) genetics.consanguinite$setSterile(true);
         if (world.random.nextDouble() < tare.joblessChance) {
-            child.setVillagerData(child.getVillagerData().withProfession(VillagerProfession.NITWIT));
+            child.setVillagerData(child.getVillagerData().withProfession(world.getRegistryManager(), VillagerProfession.NITWIT));
         }
         if (tare.ordinal() >= Tare.MODEREE.ordinal()) {
             world.spawnParticles(ParticleTypes.SMOKE, parentA.getX(), parentA.getBodyY(0.6), parentA.getZ(),
@@ -101,8 +101,7 @@ public class Consanguinite implements ModInitializer {
             text.append(Text.literal(effects.toString()).formatted(Formatting.GRAY));
         }
         if (genetics.consanguinite$isSterile()) text.append(Text.literal("\n  Stérile").formatted(Formatting.RED));
-        if (tare.lifespanDays > 0 && villager.getWorld() instanceof ServerWorld serverWorld
-            && serverWorld.getGameRules().getBoolean(MORT_PRECOCE)) {
+        if (tare.lifespanDays > 0 && villager.getWorld() instanceof ServerWorld serverWorld && serverWorld.getGameRules().getBoolean(MORT_PRECOCE)) {
             long left = tare.lifespanDays * TICKS_PER_DAY - genetics.consanguinite$getLifeTicks();
             text.append(Text.literal(String.format("\n  Espérance de vie restante : %.1f jours", Math.max(0, left) / (double) TICKS_PER_DAY))
                 .formatted(Formatting.GRAY));
