@@ -18,9 +18,9 @@ import net.minecraft.util.Identifier;
 public class TareFeatureRenderer extends FeatureRenderer<VillagerEntity, VillagerResemblingModel<VillagerEntity>> {
     private static final Identifier[] TEXTURES = {
         null,
-        Identifier.of(Consanguinite.MOD_ID, "textures/entity/tare_legere.png"),
-        Identifier.of(Consanguinite.MOD_ID, "textures/entity/tare_moderee.png"),
-        Identifier.of(Consanguinite.MOD_ID, "textures/entity/tare_grave.png"),
+        new Identifier(Consanguinite.MOD_ID, "textures/entity/tare_legere.png"),
+        new Identifier(Consanguinite.MOD_ID, "textures/entity/tare_moderee.png"),
+        new Identifier(Consanguinite.MOD_ID, "textures/entity/tare_grave.png"),
     };
 
     public TareFeatureRenderer(FeatureRendererContext<VillagerEntity, VillagerResemblingModel<VillagerEntity>> context) {
@@ -35,6 +35,6 @@ public class TareFeatureRenderer extends FeatureRenderer<VillagerEntity, Village
         if (tare == Tare.AUCUNE) return;
         // Couche translucide : teinte maladive par-dessus le skin, quel que soit le biome ou le métier.
         VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(TEXTURES[tare.ordinal()]));
-        getContextModel().render(matrices, consumer, light, LivingEntityRenderer.getOverlay(entity, 0f), -1);
+        getContextModel().render(matrices, consumer, light, LivingEntityRenderer.getOverlay(entity, 0f), 1f, 1f, 1f, 1f);
     }
 }
