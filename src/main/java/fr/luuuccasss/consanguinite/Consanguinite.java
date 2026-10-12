@@ -1,5 +1,7 @@
 package fr.luuuccasss.consanguinite;
 
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
@@ -11,12 +13,10 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.item.Items;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
 import net.minecraft.village.VillagerProfession;
 import net.minecraft.world.GameRules;
 
@@ -53,7 +53,7 @@ public class Consanguinite implements ModInitializer {
 
         addMalus(child, EntityAttributes.GENERIC_MAX_HEALTH, "sante", tare.healthMalus);
         addMalus(child, EntityAttributes.GENERIC_MOVEMENT_SPEED, "vitesse", tare.speedMalus);
-        addMalus(child, EntityAttributes.GENERIC_SCALE, "taille", tare.scaleMalus);
+        // Pas d'attribut de taille en 1.20.1 : la taille réduite est appliquée au rendu (VillagerEntityRendererMixin).
         child.setHealth(child.getMaxHealth());
 
         if (world.random.nextDouble() < tare.sterileChance) genetics.consanguinite$setSterile(true);
@@ -66,14 +66,14 @@ public class Consanguinite implements ModInitializer {
         }
     }
 
-    private static void addMalus(VillagerEntity villager, RegistryEntry<EntityAttribute> attribute, String name, double malus) {
+    private static void addMalus(VillagerEntity villager, EntityAttribute attribute, String name, double malus) {
         if (malus <= 0) return;
         EntityAttributeInstance instance = villager.getAttributeInstance(attribute);
         if (instance == null) return;
-        Identifier id = Identifier.of(MOD_ID, name);
+        UUID id = UUID.nameUUIDFromBytes((MOD_ID + ":" + name).getBytes(StandardCharsets.UTF_8));
         instance.removeModifier(id);
-        instance.addPersistentModifier(new EntityAttributeModifier(id, -malus,
-            EntityAttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+        instance.addPersistentModifier(new EntityAttributeModifier(id, MOD_ID + ":" + name, -malus,
+            EntityAttributeModifier.Operation.MULTIPLY_TOTAL));
     }
 
     private static Text describe(VillagerEntity villager) {
