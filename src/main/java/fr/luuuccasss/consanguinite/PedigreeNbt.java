@@ -1,26 +1,26 @@
 package fr.luuuccasss.consanguinite;
 
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.util.Uuids;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
-/** Sauvegarde de l'arbre généalogique (WriteView / ReadView depuis 1.21.6). */
+/** Sauvegarde de l'arbre généalogique dans les données de l'entité. */
 public final class PedigreeNbt {
     private PedigreeNbt() {
     }
 
-    public static void write(WriteView view, Pedigree pedigree) {
-        view.put("id", Uuids.INT_STREAM_CODEC, pedigree.id());
-        view.putFloat("f", pedigree.inbreeding());
-        if (pedigree.parentA() != null) write(view.get("a"), pedigree.parentA());
-        if (pedigree.parentB() != null) write(view.get("b"), pedigree.parentB());
+    public static void write(ValueOutput out, Pedigree pedigree) {
+        out.store("id", UUIDUtil.CODEC, pedigree.id());
+        out.putFloat("f", pedigree.inbreeding());
+        if (pedigree.parentA() != null) write(out.child("a"), pedigree.parentA());
+        if (pedigree.parentB() != null) write(out.child("b"), pedigree.parentB());
     }
 
-    public static Pedigree read(ReadView view) {
-        return view.read("id", Uuids.INT_STREAM_CODEC)
-            .map(id -> new Pedigree(id, view.getFloat("f", 0f),
-                view.getOptionalReadView("a").map(PedigreeNbt::read).orElse(null),
-                view.getOptionalReadView("b").map(PedigreeNbt::read).orElse(null)))
+    public static Pedigree read(ValueInput in) {
+        return in.read("id", UUIDUtil.CODEC)
+            .map(id -> new Pedigree(id, in.getFloatOr("f", 0f),
+                in.child("a").map(PedigreeNbt::read).orElse(null),
+                in.child("b").map(PedigreeNbt::read).orElse(null)))
             .orElse(null);
     }
 }
