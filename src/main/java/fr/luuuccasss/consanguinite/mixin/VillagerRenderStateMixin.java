@@ -2,12 +2,12 @@ package fr.luuuccasss.consanguinite.mixin;
 
 import fr.luuuccasss.consanguinite.Tare;
 import fr.luuuccasss.consanguinite.client.TareRenderState;
-import net.minecraft.client.render.entity.state.VillagerEntityRenderState;
+import net.minecraft.client.renderer.entity.state.VillagerRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-@Mixin(VillagerEntityRenderState.class)
-public abstract class VillagerEntityRenderStateMixin implements TareRenderState {
+@Mixin(VillagerRenderState.class)
+public abstract class VillagerRenderStateMixin implements TareRenderState {
     @Unique private Tare consanguinite$tare = Tare.AUCUNE;
 
     @Override
