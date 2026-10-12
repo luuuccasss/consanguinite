@@ -1,12 +1,12 @@
 package fr.luuuccasss.consanguinite;
 
 import java.util.UUID;
-import net.minecraft.nbt.NbtCompound;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Arbre généalogique d'un villageois, tronqué à {@link #MAX_DEPTH} générations.
  * Le calcul du coefficient de consanguinité suit la méthode récursive de la parenté (Wright / Malécot).
+ * Code commun à toutes les versions : aucune dépendance à Minecraft.
  */
 public record Pedigree(UUID id, float inbreeding, @Nullable Pedigree parentA, @Nullable Pedigree parentB) {
     public static final int MAX_DEPTH = 6;
@@ -52,20 +52,5 @@ public record Pedigree(UUID id, float inbreeding, @Nullable Pedigree parentA, @N
         return new Pedigree(id, inbreeding,
             parentA == null ? null : parentA.truncate(depth - 1),
             parentB == null ? null : parentB.truncate(depth - 1));
-    }
-
-    public NbtCompound toNbt() {
-        NbtCompound nbt = new NbtCompound();
-        nbt.putUuid("id", id);
-        nbt.putFloat("f", inbreeding);
-        if (parentA != null) nbt.put("a", parentA.toNbt());
-        if (parentB != null) nbt.put("b", parentB.toNbt());
-        return nbt;
-    }
-
-    public static Pedigree fromNbt(NbtCompound nbt) {
-        return new Pedigree(nbt.getUuid("id"), nbt.getFloat("f"),
-            nbt.contains("a") ? fromNbt(nbt.getCompound("a")) : null,
-            nbt.contains("b") ? fromNbt(nbt.getCompound("b")) : null);
     }
 }

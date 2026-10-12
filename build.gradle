@@ -1,8 +1,8 @@
 plugins {
-    id 'fabric-loom' version '1.9.2'
+    id 'fabric-loom' version '1.14.10'
 }
 
-version = project.mod_version
+version = "${project.mod_version}+${project.minecraft_version}"
 group = 'fr.luuuccasss'
 base { archivesName = 'consanguinite' }
 

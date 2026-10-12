@@ -2,8 +2,7 @@ package fr.luuuccasss.consanguinite;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
-import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
-import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
+import net.fabricmc.fabric.api.gamerule.v1.GameRuleBuilder;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeInstance;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
@@ -18,24 +17,26 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.village.VillagerProfession;
-import net.minecraft.world.GameRules;
+import net.minecraft.world.rule.GameRule;
+import net.minecraft.world.rule.GameRuleCategory;
 
 public class Consanguinite implements ModInitializer {
     public static final String MOD_ID = "consanguinite";
     public static final long TICKS_PER_DAY = 24000L;
 
-    public static GameRules.Key<GameRules.BooleanRule> MORT_PRECOCE;
+    public static GameRule<Boolean> MORT_PRECOCE;
 
     @Override
     public void onInitialize() {
-        MORT_PRECOCE = GameRuleRegistry.register("consanguiniteMortPrecoce", GameRules.Category.MOBS,
-            GameRuleFactory.createBooleanRule(true));
+        // 1.21.11 : règles de jeu en registre, nom en minuscules -> /gamerule consanguinite:mort_precoce
+        MORT_PRECOCE = GameRuleBuilder.forBoolean(true).category(GameRuleCategory.MOBS)
+            .buildAndRegister(Identifier.of(MOD_ID, "mort_precoce"));
 
         // Accroupi + clic droit avec un livre : fiche généalogique du villageois.
         UseEntityCallback.EVENT.register((player, world, hand, entity, hit) -> {
             if (!(entity instanceof VillagerEntity villager) || !player.isSneaking()
                 || !player.getStackInHand(hand).isOf(Items.BOOK)) return ActionResult.PASS;
-            if (!world.isClient) player.sendMessage(describe(villager), false);
+            if (!world.isClient()) player.sendMessage(describe(villager), false);
             return ActionResult.SUCCESS;
         });
     }
@@ -51,14 +52,14 @@ public class Consanguinite implements ModInitializer {
         Tare tare = Tare.of(pedigree.inbreeding());
         if (tare == Tare.AUCUNE) return;
 
-        addMalus(child, EntityAttributes.GENERIC_MAX_HEALTH, "sante", tare.healthMalus);
-        addMalus(child, EntityAttributes.GENERIC_MOVEMENT_SPEED, "vitesse", tare.speedMalus);
-        addMalus(child, EntityAttributes.GENERIC_SCALE, "taille", tare.scaleMalus);
+        addMalus(child, EntityAttributes.MAX_HEALTH, "sante", tare.healthMalus);
+        addMalus(child, EntityAttributes.MOVEMENT_SPEED, "vitesse", tare.speedMalus);
+        addMalus(child, EntityAttributes.SCALE, "taille", tare.scaleMalus);
         child.setHealth(child.getMaxHealth());
 
         if (world.random.nextDouble() < tare.sterileChance) genetics.consanguinite$setSterile(true);
         if (world.random.nextDouble() < tare.joblessChance) {
-            child.setVillagerData(child.getVillagerData().withProfession(VillagerProfession.NITWIT));
+            child.setVillagerData(child.getVillagerData().withProfession(world.getRegistryManager(), VillagerProfession.NITWIT));
         }
         if (tare.ordinal() >= Tare.MODEREE.ordinal()) {
             world.spawnParticles(ParticleTypes.SMOKE, parentA.getX(), parentA.getBodyY(0.6), parentA.getZ(),
@@ -101,7 +102,7 @@ public class Consanguinite implements ModInitializer {
             text.append(Text.literal(effects.toString()).formatted(Formatting.GRAY));
         }
         if (genetics.consanguinite$isSterile()) text.append(Text.literal("\n  Stérile").formatted(Formatting.RED));
-        if (tare.lifespanDays > 0 && villager.getWorld().getGameRules().getBoolean(MORT_PRECOCE)) {
+        if (tare.lifespanDays > 0 && villager.getEntityWorld() instanceof ServerWorld sw && sw.getGameRules().getValue(MORT_PRECOCE)) {
             long left = tare.lifespanDays * TICKS_PER_DAY - genetics.consanguinite$getLifeTicks();
             text.append(Text.literal(String.format("\n  Espérance de vie restante : %.1f jours", Math.max(0, left) / (double) TICKS_PER_DAY))
                 .formatted(Formatting.GRAY));
