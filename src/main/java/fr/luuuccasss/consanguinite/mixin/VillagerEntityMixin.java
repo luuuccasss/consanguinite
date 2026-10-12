@@ -11,9 +11,10 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.village.TradeOffer;
@@ -76,19 +77,18 @@ public abstract class VillagerEntityMixin implements VillagerGenetics {
         builder.add(CONSANGUINITE_TARE, 0);
     }
 
-    @Inject(method = "writeCustomDataToNbt", at = @At("TAIL"))
-    private void consanguinite$write(NbtCompound nbt, CallbackInfo ci) {
-        NbtCompound data = new NbtCompound();
+    @Inject(method = "writeCustomData", at = @At("TAIL"))
+    private void consanguinite$write(WriteView view, CallbackInfo ci) {
+        WriteView data = view.get("Consanguinite");
         data.put("Pedigree", PedigreeCodec.CODEC, consanguinite$getPedigree());
         data.putBoolean("Sterile", consanguinite$sterile);
         data.putLong("LifeTicks", consanguinite$lifeTicks);
-        nbt.put("Consanguinite", data);
     }
 
-    @Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
-    private void consanguinite$read(NbtCompound nbt, CallbackInfo ci) {
-        nbt.getCompound("Consanguinite").ifPresent(data -> {
-            data.get("Pedigree", PedigreeCodec.CODEC).ifPresent(this::consanguinite$setPedigree);
+    @Inject(method = "readCustomData", at = @At("TAIL"))
+    private void consanguinite$read(ReadView view, CallbackInfo ci) {
+        view.getOptionalReadView("Consanguinite").ifPresent(data -> {
+            data.read("Pedigree", PedigreeCodec.CODEC).ifPresent(this::consanguinite$setPedigree);
             consanguinite$sterile = data.getBoolean("Sterile", false);
             consanguinite$lifeTicks = data.getLong("LifeTicks", 0L);
         });
