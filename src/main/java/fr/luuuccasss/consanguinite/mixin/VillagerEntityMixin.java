@@ -72,8 +72,8 @@ public abstract class VillagerEntityMixin implements VillagerGenetics {
     }
 
     @Inject(method = "initDataTracker", at = @At("TAIL"))
-    private void consanguinite$initDataTracker(DataTracker.Builder builder, CallbackInfo ci) {
-        builder.add(CONSANGUINITE_TARE, 0);
+    private void consanguinite$initDataTracker(CallbackInfo ci) {
+        consanguinite$self().getDataTracker().startTracking(CONSANGUINITE_TARE, 0);
     }
 
     @Inject(method = "writeCustomDataToNbt", at = @At("TAIL"))
