@@ -2,7 +2,7 @@ package fr.luuuccasss.consanguinite.mixin;
 
 import fr.luuuccasss.consanguinite.Consanguinite;
 import fr.luuuccasss.consanguinite.Pedigree;
-import fr.luuuccasss.consanguinite.PedigreeNbt;
+import fr.luuuccasss.consanguinite.PedigreeCodec;
 import fr.luuuccasss.consanguinite.Tare;
 import fr.luuuccasss.consanguinite.VillagerGenetics;
 import net.minecraft.entity.data.DataTracker;
@@ -79,7 +79,7 @@ public abstract class VillagerEntityMixin implements VillagerGenetics {
     @Inject(method = "writeCustomDataToNbt", at = @At("TAIL"))
     private void consanguinite$write(NbtCompound nbt, CallbackInfo ci) {
         NbtCompound data = new NbtCompound();
-        data.put("Pedigree", PedigreeNbt.write(consanguinite$getPedigree()));
+        data.put("Pedigree", PedigreeCodec.CODEC, consanguinite$getPedigree());
         data.putBoolean("Sterile", consanguinite$sterile);
         data.putLong("LifeTicks", consanguinite$lifeTicks);
         nbt.put("Consanguinite", data);
@@ -87,11 +87,11 @@ public abstract class VillagerEntityMixin implements VillagerGenetics {
 
     @Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
     private void consanguinite$read(NbtCompound nbt, CallbackInfo ci) {
-        if (!nbt.contains("Consanguinite")) return;
-        NbtCompound data = nbt.getCompound("Consanguinite");
-        if (data.contains("Pedigree")) consanguinite$setPedigree(PedigreeNbt.read(data.getCompound("Pedigree")));
-        consanguinite$sterile = data.getBoolean("Sterile");
-        consanguinite$lifeTicks = data.getLong("LifeTicks");
+        nbt.getCompound("Consanguinite").ifPresent(data -> {
+            data.get("Pedigree", PedigreeCodec.CODEC).ifPresent(this::consanguinite$setPedigree);
+            consanguinite$sterile = data.getBoolean("Sterile", false);
+            consanguinite$lifeTicks = data.getLong("LifeTicks", 0L);
+        });
     }
 
     @Inject(method = "createChild(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/passive/PassiveEntity;)Lnet/minecraft/entity/passive/VillagerEntity;",
