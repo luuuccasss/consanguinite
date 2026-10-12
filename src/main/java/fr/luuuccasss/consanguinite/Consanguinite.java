@@ -51,9 +51,9 @@ public class Consanguinite implements ModInitializer {
         Tare tare = Tare.of(pedigree.inbreeding());
         if (tare == Tare.AUCUNE) return;
 
-        addMalus(child, EntityAttributes.GENERIC_MAX_HEALTH, "sante", tare.healthMalus);
-        addMalus(child, EntityAttributes.GENERIC_MOVEMENT_SPEED, "vitesse", tare.speedMalus);
-        addMalus(child, EntityAttributes.GENERIC_SCALE, "taille", tare.scaleMalus);
+        addMalus(child, EntityAttributes.MAX_HEALTH, "sante", tare.healthMalus);
+        addMalus(child, EntityAttributes.MOVEMENT_SPEED, "vitesse", tare.speedMalus);
+        addMalus(child, EntityAttributes.SCALE, "taille", tare.scaleMalus);
         child.setHealth(child.getMaxHealth());
 
         if (world.random.nextDouble() < tare.sterileChance) genetics.consanguinite$setSterile(true);
@@ -101,7 +101,8 @@ public class Consanguinite implements ModInitializer {
             text.append(Text.literal(effects.toString()).formatted(Formatting.GRAY));
         }
         if (genetics.consanguinite$isSterile()) text.append(Text.literal("\n  Stérile").formatted(Formatting.RED));
-        if (tare.lifespanDays > 0 && villager.getWorld().getGameRules().getBoolean(MORT_PRECOCE)) {
+        if (tare.lifespanDays > 0 && villager.getWorld() instanceof ServerWorld serverWorld
+            && serverWorld.getGameRules().getBoolean(MORT_PRECOCE)) {
             long left = tare.lifespanDays * TICKS_PER_DAY - genetics.consanguinite$getLifeTicks();
             text.append(Text.literal(String.format("\n  Espérance de vie restante : %.1f jours", Math.max(0, left) / (double) TICKS_PER_DAY))
                 .formatted(Formatting.GRAY));
