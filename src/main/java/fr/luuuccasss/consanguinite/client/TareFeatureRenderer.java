@@ -2,7 +2,6 @@ package fr.luuuccasss.consanguinite.client;
 
 import fr.luuuccasss.consanguinite.Consanguinite;
 import fr.luuuccasss.consanguinite.Tare;
-import fr.luuuccasss.consanguinite.VillagerGenetics;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -10,12 +9,12 @@ import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.VillagerResemblingModel;
+import net.minecraft.client.render.entity.state.VillagerEntityRenderState;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.util.Identifier;
 
 /** Teint maladif, cernes, vêtements sales et rapiécés, bandages pour les tares graves. */
-public class TareFeatureRenderer extends FeatureRenderer<VillagerEntity, VillagerResemblingModel<VillagerEntity>> {
+public class TareFeatureRenderer extends FeatureRenderer<VillagerEntityRenderState, VillagerResemblingModel> {
     private static final Identifier[] TEXTURES = {
         null,
         Identifier.of(Consanguinite.MOD_ID, "textures/entity/tare_legere.png"),
@@ -23,18 +22,18 @@ public class TareFeatureRenderer extends FeatureRenderer<VillagerEntity, Village
         Identifier.of(Consanguinite.MOD_ID, "textures/entity/tare_grave.png"),
     };
 
-    public TareFeatureRenderer(FeatureRendererContext<VillagerEntity, VillagerResemblingModel<VillagerEntity>> context) {
+    public TareFeatureRenderer(FeatureRendererContext<VillagerEntityRenderState, VillagerResemblingModel> context) {
         super(context);
     }
 
     @Override
-    public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, VillagerEntity entity,
-                       float limbAngle, float limbDistance, float tickDelta, float animationProgress, float headYaw, float headPitch) {
-        if (entity.isInvisible()) return;
-        Tare tare = ((VillagerGenetics) entity).consanguinite$getTare();
+    public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, VillagerEntityRenderState state,
+                       float limbAngle, float limbDistance) {
+        if (state.invisible) return;
+        Tare tare = ((TareRenderState) state).consanguinite$getTare();
         if (tare == Tare.AUCUNE) return;
         // Couche translucide : teinte maladive par-dessus le skin, quel que soit le biome ou le métier.
         VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(TEXTURES[tare.ordinal()]));
-        getContextModel().render(matrices, consumer, light, LivingEntityRenderer.getOverlay(entity, 0f), -1);
+        getContextModel().render(matrices, consumer, light, LivingEntityRenderer.getOverlay(state, 0f), -1);
     }
 }

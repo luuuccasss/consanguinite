@@ -1,10 +1,10 @@
 package fr.luuuccasss.consanguinite.mixin;
 
 import fr.luuuccasss.consanguinite.Tare;
-import fr.luuuccasss.consanguinite.VillagerGenetics;
+import fr.luuuccasss.consanguinite.client.TareRenderState;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.entity.model.VillagerResemblingModel;
-import net.minecraft.entity.Entity;
+import net.minecraft.client.render.entity.state.VillagerEntityRenderState;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -17,17 +17,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class VillagerResemblingModelMixin {
     @Shadow @Final private ModelPart head;
 
-    @Inject(method = "setAngles", at = @At("TAIL"))
-    private void consanguinite$tiredHead(Entity entity, float limbAngle, float limbDistance, float animationProgress,
-                                         float headYaw, float headPitch, CallbackInfo ci) {
-        // Le modèle est partagé entre tous les villageois : on repositionne toujours la tête.
-        if (entity instanceof VillagerGenetics genetics && genetics.consanguinite$getTare() == Tare.GRAVE) {
+    // Le modèle remet ses pièces à zéro à chaque frame (resetTransforms), pas besoin de restaurer.
+    @Inject(method = "setAngles(Lnet/minecraft/client/render/entity/state/VillagerEntityRenderState;)V", at = @At("TAIL"))
+    private void consanguinite$tiredHead(VillagerEntityRenderState state, CallbackInfo ci) {
+        if (((TareRenderState) state).consanguinite$getTare() == Tare.GRAVE) {
             head.pitch = 1.5f;
             head.pivotZ = -2f;
             head.pivotY = -0.5f;
-        } else {
-            head.pivotZ = 0f;
-            head.pivotY = 0f;
         }
     }
 }

@@ -4,6 +4,6 @@
   "package": "fr.luuuccasss.consanguinite.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": ["VillagerEntityMixin"],
-  "client": ["VillagerResemblingModelMixin"],
+  "client": ["VillagerEntityRenderStateMixin", "VillagerEntityRendererMixin", "VillagerResemblingModelMixin"],
   "injectors": { "defaultRequire": 1 }
 }
