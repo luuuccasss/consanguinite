@@ -35,6 +35,6 @@ public class TareLayer extends RenderLayer<VillagerRenderState, VillagerModel> {
         // Couche translucide : teinte maladive par-dessus le skin, quel que soit le biome ou le métier.
         collector.order(2).submitModel(getParentModel(), state, poseStack,
             RenderTypes.entityTranslucent(TEXTURES[tare.ordinal()]), light,
-            LivingEntityRenderer.getOverlayCoords(state, 0f), -1, null, state.outlineColor, null);
+            LivingEntityRenderer.getOverlayCoords(state, 0f), -1, null, state.outlineColor);
     }
 }
