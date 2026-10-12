@@ -11,7 +11,8 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -76,22 +77,21 @@ public abstract class VillagerEntityMixin implements VillagerGenetics {
         builder.add(CONSANGUINITE_TARE, 0);
     }
 
-    @Inject(method = "writeCustomDataToNbt", at = @At("TAIL"))
-    private void consanguinite$write(NbtCompound nbt, CallbackInfo ci) {
-        NbtCompound data = new NbtCompound();
-        data.put("Pedigree", PedigreeNbt.write(consanguinite$getPedigree()));
+    @Inject(method = "writeCustomData", at = @At("TAIL"))
+    private void consanguinite$write(WriteView view, CallbackInfo ci) {
+        WriteView data = view.get("Consanguinite");
+        PedigreeNbt.write(data.get("Pedigree"), consanguinite$getPedigree());
         data.putBoolean("Sterile", consanguinite$sterile);
         data.putLong("LifeTicks", consanguinite$lifeTicks);
-        nbt.put("Consanguinite", data);
     }
 
-    @Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
-    private void consanguinite$read(NbtCompound nbt, CallbackInfo ci) {
-        if (!nbt.contains("Consanguinite")) return;
-        NbtCompound data = nbt.getCompound("Consanguinite");
-        if (data.contains("Pedigree")) consanguinite$setPedigree(PedigreeNbt.read(data.getCompound("Pedigree")));
-        consanguinite$sterile = data.getBoolean("Sterile");
-        consanguinite$lifeTicks = data.getLong("LifeTicks");
+    @Inject(method = "readCustomData", at = @At("TAIL"))
+    private void consanguinite$read(ReadView view, CallbackInfo ci) {
+        view.getOptionalReadView("Consanguinite").ifPresent(data -> {
+            data.getOptionalReadView("Pedigree").map(PedigreeNbt::read).ifPresent(this::consanguinite$setPedigree);
+            consanguinite$sterile = data.getBoolean("Sterile", false);
+            consanguinite$lifeTicks = data.getLong("LifeTicks", 0L);
+        });
     }
 
     @Inject(method = "createChild(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/entity/passive/PassiveEntity;)Lnet/minecraft/entity/passive/VillagerEntity;",
@@ -103,7 +103,7 @@ public abstract class VillagerEntityMixin implements VillagerGenetics {
         }
     }
 
-    @Inject(method = "canBreed", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "isReadyToBreed", at = @At("HEAD"), cancellable = true)
     private void consanguinite$canBreed(CallbackInfoReturnable<Boolean> cir) {
         if (consanguinite$sterile) cir.setReturnValue(false);
     }
@@ -137,15 +137,15 @@ public abstract class VillagerEntityMixin implements VillagerGenetics {
     @Inject(method = "tick", at = @At("TAIL"))
     private void consanguinite$tick(CallbackInfo ci) {
         VillagerEntity self = consanguinite$self();
-        if (!(self.getWorld() instanceof ServerWorld world) || !self.isAlive()) return;
+        if (!(self.getEntityWorld() instanceof ServerWorld world) || !self.isAlive()) return;
         Tare tare = consanguinite$getTare();
         consanguinite$cough(world, self, tare);
         if (tare.lifespanDays <= 0) return;
         consanguinite$lifeTicks++;
         if (consanguinite$lifeTicks >= tare.lifespanDays * Consanguinite.TICKS_PER_DAY
-            && world.getGameRules().getBoolean(Consanguinite.MORT_PRECOCE)) {
+            && world.getGameRules().getValue(Consanguinite.MORT_PRECOCE)) {
             world.spawnParticles(ParticleTypes.SMOKE, self.getX(), self.getBodyY(0.5), self.getZ(), 20, 0.3, 0.5, 0.3, 0.02);
-            self.kill();
+            self.kill(world);
         }
     }
 }
