@@ -103,7 +103,7 @@ public abstract class VillagerEntityMixin implements VillagerGenetics {
         }
     }
 
-    @Inject(method = "canBreed", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "isReadyToBreed", at = @At("HEAD"), cancellable = true)
     private void consanguinite$canBreed(CallbackInfoReturnable<Boolean> cir) {
         if (consanguinite$sterile) cir.setReturnValue(false);
     }
@@ -145,7 +145,7 @@ public abstract class VillagerEntityMixin implements VillagerGenetics {
         if (consanguinite$lifeTicks >= tare.lifespanDays * Consanguinite.TICKS_PER_DAY
             && world.getGameRules().getBoolean(Consanguinite.MORT_PRECOCE)) {
             world.spawnParticles(ParticleTypes.SMOKE, self.getX(), self.getBodyY(0.5), self.getZ(), 20, 0.3, 0.5, 0.3, 0.02);
-            self.kill();
+            self.kill(world);
         }
     }
 }
