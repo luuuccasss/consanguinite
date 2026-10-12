@@ -1,0 +1,9 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "fr.luuuccasss.consanguinite.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": ["VillagerEntityMixin"],
+  "client": ["VillagerResemblingModelMixin"],
+  "injectors": { "defaultRequire": 1 }
+}

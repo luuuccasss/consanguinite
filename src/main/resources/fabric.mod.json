@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "consanguinite",
+  "version": "${version}",
+  "name": "Consanguinité",
+  "description": "Les villageois issus de parents trop proches héritent de tares génétiques : santé, vitesse, taille, fertilité, commerce et espérance de vie.",
+  "authors": ["luuuccasss"],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["fr.luuuccasss.consanguinite.Consanguinite"],
+    "client": ["fr.luuuccasss.consanguinite.client.ConsanguiniteClient"]
+  },
+  "mixins": ["consanguinite.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
