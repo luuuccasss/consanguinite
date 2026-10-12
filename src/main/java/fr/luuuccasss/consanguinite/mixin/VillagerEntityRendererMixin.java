@@ -10,11 +10,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/** Copie le niveau de tare dans l'état de rendu du villageois. */
 @Mixin(VillagerEntityRenderer.class)
 public abstract class VillagerEntityRendererMixin {
     @Inject(method = "updateRenderState(Lnet/minecraft/entity/passive/VillagerEntity;Lnet/minecraft/client/render/entity/state/VillagerEntityRenderState;F)V",
         at = @At("TAIL"))
-    private void consanguinite$copyTare(VillagerEntity villager, VillagerEntityRenderState state, float tickDelta, CallbackInfo ci) {
+    private void consanguinite$updateRenderState(VillagerEntity villager, VillagerEntityRenderState state, float tickDelta, CallbackInfo ci) {
         ((TareRenderState) state).consanguinite$setTare(((VillagerGenetics) villager).consanguinite$getTare());
     }
 }

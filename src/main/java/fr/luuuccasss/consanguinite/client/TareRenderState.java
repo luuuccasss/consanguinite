@@ -2,7 +2,7 @@ package fr.luuuccasss.consanguinite.client;
 
 import fr.luuuccasss.consanguinite.Tare;
 
-/** Niveau de tare transporté dans le render state du villageois (1.21.2+). */
+/** Niveau de tare ajouté à VillagerEntityRenderState par mixin. */
 public interface TareRenderState {
     Tare consanguinite$getTare();
 

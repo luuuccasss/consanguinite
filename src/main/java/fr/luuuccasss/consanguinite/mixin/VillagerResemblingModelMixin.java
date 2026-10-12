@@ -17,13 +17,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class VillagerResemblingModelMixin {
     @Shadow @Final private ModelPart head;
 
-    // Le modèle remet ses pièces à zéro à chaque frame (resetTransforms), pas besoin de restaurer.
+    // Les transformations sont remises à zéro à chaque image (resetTransforms) : on décale par rapport à la pose de base.
     @Inject(method = "setAngles(Lnet/minecraft/client/render/entity/state/VillagerEntityRenderState;)V", at = @At("TAIL"))
     private void consanguinite$tiredHead(VillagerEntityRenderState state, CallbackInfo ci) {
         if (((TareRenderState) state).consanguinite$getTare() == Tare.GRAVE) {
             head.pitch = 1.5f;
-            head.pivotZ = -2f;
-            head.pivotY = -0.5f;
+            head.originZ -= 2f;
+            head.originY -= 0.5f;
         }
     }
 }
