@@ -30,7 +30,7 @@ public class TareFeatureRenderer extends FeatureRenderer<VillagerEntityRenderSta
     public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, VillagerEntityRenderState state,
                        float limbAngle, float limbDistance) {
         if (state.invisible) return;
-        Tare tare = ((TareRenderState) state).consanguinite$getTare();
+        Tare tare = state.getDataOrDefault(TareRenderData.TARE, Tare.AUCUNE);
         if (tare == Tare.AUCUNE) return;
         // Couche translucide : teinte maladive par-dessus le skin, quel que soit le biome ou le métier.
         VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(TEXTURES[tare.ordinal()]));

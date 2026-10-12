@@ -1,7 +1,7 @@
 package fr.luuuccasss.consanguinite.mixin;
 
 import fr.luuuccasss.consanguinite.VillagerGenetics;
-import fr.luuuccasss.consanguinite.client.TareRenderState;
+import fr.luuuccasss.consanguinite.client.TareRenderData;
 import net.minecraft.client.render.entity.VillagerEntityRenderer;
 import net.minecraft.client.render.entity.state.VillagerEntityRenderState;
 import net.minecraft.entity.passive.VillagerEntity;
@@ -16,6 +16,6 @@ public abstract class VillagerEntityRendererMixin {
     @Inject(method = "updateRenderState(Lnet/minecraft/entity/passive/VillagerEntity;Lnet/minecraft/client/render/entity/state/VillagerEntityRenderState;F)V",
         at = @At("TAIL"))
     private void consanguinite$updateRenderState(VillagerEntity villager, VillagerEntityRenderState state, float tickDelta, CallbackInfo ci) {
-        ((TareRenderState) state).consanguinite$setTare(((VillagerGenetics) villager).consanguinite$getTare());
+        state.setData(TareRenderData.TARE, ((VillagerGenetics) villager).consanguinite$getTare());
     }
 }
